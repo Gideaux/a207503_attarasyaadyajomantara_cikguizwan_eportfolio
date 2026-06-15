@@ -138,25 +138,6 @@
     .actions { display: flex; flex-wrap: wrap; gap: 10px; }
     .actions .btn { margin-top: 0; }
 
-    /* ── Card display area: screenshots are the main visual ── */
-    .display {
-      background: var(--bg-alt);
-      display: flex; flex-wrap: wrap; gap: 14px;
-      align-items: center; justify-content: center;
-      padding: 20px; border-bottom: 1px solid var(--border);
-      min-height: 170px;
-    }
-    .shot {
-      display: flex; flex-direction: column; align-items: center;
-      width: 140px; text-decoration: none;
-    }
-    .shot img {
-      width: 140px; border-radius: 10px; border: 1px solid var(--border);
-      box-shadow: 0 2px 10px rgba(0,0,0,.14); cursor: zoom-in; background: #f4f4f6;
-    }
-    .shot span { font-size: .74rem; color: var(--muted); margin-top: 6px; text-align: center; }
-    .display .placeholder { color: var(--muted); font-size: .9rem; text-align: center; max-width: 30ch; }
-
     /* ── Skills ── */
     .chips { display: flex; flex-wrap: wrap; gap: 10px; }
     .chip {
@@ -357,25 +338,17 @@
 
     /* ── Renderer (no need to edit below) ── */
 
-    /* The card's main visual: a row of labelled screenshots.
-       Pass shots like [ { src: "screenshots/lab1-home.png", label: "Home" } ].
-       Falls back to a tidy placeholder when none are added yet. */
-    function displayBlock(shots, label) {
-      if (shots && shots.length) {
-        return `<div class="display">` + shots.map(s => `
-          <a class="shot" href="${s.src}" target="_blank" rel="noopener">
-            <img src="${s.src}" alt="${s.label}" loading="lazy" />
-            <span>${s.label}</span>
-          </a>`).join("") + `</div>`;
+    /* The card's main visual: an embedded YouTube player.
+       Falls back to a tidy placeholder when no video id is set yet. */
+    function videoBlock(id, label) {
+      if (id && id.trim()) {
+        return `<div class="video">
+          <iframe src="https://www.youtube.com/embed/${id.trim()}"
+                  title="${label} video" loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe></div>`;
       }
-      return `<div class="display"><div class="placeholder">📷 ${label} screenshots — add image files in CONFIG to show them here.</div></div>`;
-    }
-
-    /* YouTube link rendered as a button instead of an embedded player. */
-    function ytBtn(id) {
-      if (id && id.trim())
-        return `<a class="btn" href="https://youtu.be/${id.trim()}" target="_blank" rel="noopener">▶ Watch on YouTube</a>`;
-      return `<a class="btn secondary" href="#" aria-disabled="true" onclick="return false">▶ Watch (add link)</a>`;
+      return `<div class="video"><div class="placeholder">▶ ${label} video — paste the YouTube id in CONFIG to embed it.</div></div>`;
     }
 
     function linkBtn(url, text) {
@@ -385,24 +358,23 @@
 
     document.getElementById("labs-grid").innerHTML = CONFIG.labs.map(l => `
       <article class="card">
-        ${displayBlock(l.shots, l.title)}
+        ${videoBlock(l.youtube, l.title)}
         <div class="body">
           <h3>${l.title}</h3>
           <p>${l.desc}</p>
           <p class="reflection">${l.reflection}</p>
-          <div class="actions">${ytBtn(l.youtube)}</div>
         </div>
       </article>`).join("");
 
     document.getElementById("projects-grid").innerHTML = CONFIG.projects.map(p => `
       <article class="card">
-        ${displayBlock(p.shots, p.title)}
+        ${videoBlock(p.youtube, p.title)}
         <div class="body">
           <span class="tag">${p.tag}</span>
           <h3>${p.title}</h3>
           <p><strong>Problem:</strong> ${p.problem}</p>
           <p class="reflection"><strong>Lessons learned:</strong> ${p.lessons}</p>
-          <div class="actions">${ytBtn(p.youtube)}${linkBtn(p.github, "View on GitHub")}</div>
+          <div class="actions">${linkBtn(p.github, "View on GitHub")}</div>
         </div>
       </article>`).join("");
   </script>
